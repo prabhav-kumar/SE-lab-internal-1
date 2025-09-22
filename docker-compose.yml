@@ -1,1 +1,50 @@
+version: '3.8'
 
+services:
+  eduassesspro:
+    image: tomcat:latest
+    container_name: eduassesspro
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./eduassesspro/webapps:/usr/local/tomcat/webapps
+    depends_on:
+      - db
+    networks:
+      - edu_network
+
+  db:
+    image: mysql:5.7
+    container_name: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: edu_assess_db
+      MYSQL_USER: edu_user
+      MYSQL_PASSWORD: edu_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - edu_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "9090:80"
+    networks:
+      - edu_network
+    depends_on:
+      - db
+
+networks:
+  edu_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
